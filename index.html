@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>レイティング検索</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --border: #e2e6ed;
+  --text: #1a1e2e;
+  --text2: #6b7280;
+  --accent: #1a56db;
+  --up: #0e9f6e;
+  --down: #e02424;
+  --hdr: #111827;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: var(--hdr); padding: 20px 24px; display: flex; align-items: center; gap: 12px; }
+.logo { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.header-text h1 { font-size: 16px; font-weight: 700; color: white; letter-spacing: .04em; }
+.header-text p { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+.container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+
+.search-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+.search-card h2 { font-size: 12px; font-weight: 700; color: var(--text2); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; }
+.search-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.search-row input { flex: 1; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 16px; font-family: 'DM Mono', monospace; color: var(--text); background: white; outline: none; transition: border-color .2s; }
+.search-row input:focus { border-color: var(--accent); }
+.search-row input::placeholder { color: #c0c8d8; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; }
+
+.type-row { display: flex; gap: 8px; margin-top: 12px; }
+.type-btn { padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; color: var(--text2); transition: all .15s; }
+.type-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+.btn-search {
+  padding: 12px 24px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  white-space: nowrap;
+  transition: background .15s, opacity .15s;
+}
+.btn-search:hover { background: #1648c8; }
+.btn-search:active { transform: scale(.98); }
+.btn-search:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.loading { text-align: center; padding: 48px; color: var(--text2); font-size: 14px; display: none; }
+.pingpong { font-size: 48px; margin: 0 auto 16px; width: fit-content; animation: bounce .8s infinite alternate ease-in-out; }
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-18px); } }
+
+.result { display: none; }
+
+.profile-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.profile-info .name { font-size: 18px; font-weight: 700; }
+.profile-info .meta { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 12px; text-align: center; }
+.stat .lbl { font-size: 11px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+.stat .val { font-size: 22px; font-weight: 700; font-family: 'DM Mono', monospace; }
+.val.up { color: var(--up); }
+.val.dn { color: var(--down); }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; margin-bottom: 16px; }
+.card-title { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+
+.range-btns { display: flex; gap: 6px; margin-bottom: 14px; }
+.range-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: white; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; color: var(--text2); transition: all .15s; }
+.range-btn.active { background: var(--hdr); border-color: var(--hdr); color: white; }
+.range-btn:hover:not(.active) { background: var(--bg); }
+
+.slider-area { margin-bottom: 14px; }
+.slider-labels { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; gap: 8px; }
+.slider-labels span { background: #eff4ff; color: var(--accent); padding: 3px 10px; border-radius: 6px; font-weight: 500; font-family: 'DM Mono', monospace; white-space: nowrap; }
+
+.dual-slider-wrap { position: relative; height: 36px; display: flex; align-items: center; }
+.slider-track { position: absolute; left: 0; right: 0; height: 4px; background: var(--border); border-radius: 2px; }
+.slider-fill { position: absolute; height: 4px; background: var(--accent); border-radius: 2px; }
+.dual-slider-wrap input[type=range] { position: absolute; width: 100%; height: 4px; appearance: none; -webkit-appearance: none; background: transparent; pointer-events: none; outline: none; }
+.dual-slider-wrap input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: white; border: 2.5px solid var(--accent); cursor: pointer; pointer-events: all; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.dual-slider-wrap input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: white; border: 2.5px solid var(--accent); cursor: pointer; pointer-events: all; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+
+.nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.nav-btn { padding: 7px 16px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 13px; cursor: pointer; color: var(--text2); font-family: 'Noto Sans JP', sans-serif; transition: all .15s; }
+.nav-btn:hover { background: var(--bg); }
+.nav-btn:active { transform: scale(.97); }
+.nav-center { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; }
+
+.chart-wrap { position: relative; width: 100%; height: 240px; margin-top: 16px; }
+
+.filter-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.filter-btn { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: white; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; color: var(--text2); transition: all .15s; }
+.filter-btn.active { background: var(--hdr); border-color: var(--hdr); color: white; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { padding: 8px 12px; text-align: left; color: var(--text2); font-weight: 500; border-bottom: 1px solid var(--border); background: #f8fafc; white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; font-family: 'DM Mono', monospace; font-size: 13px; }
+td.name-col { font-family: 'Noto Sans JP', sans-serif; font-size: 12px; }
+tr:last-child td { border-bottom: none; }
+.du { color: var(--up); font-weight: 500; }
+.dd { color: var(--down); font-weight: 500; }
+.dz { color: var(--text2); }
+
+.not-found, .error-box, .empty { text-align: center; padding: 48px 24px; color: var(--text2); font-size: 14px; display: none; }
+.not-found .empty-icon, .error-box .empty-icon, .empty .empty-icon { font-size: 48px; margin-bottom: 16px; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🏓</div>
+  <div class="header-text">
+    <h1>レイティング検索</h1>
+    <p>卓球レイティングポイント推移確認</p>
+  </div>
+</header>
+
+<div class="container">
+  <div class="search-card">
+    <h2>会員番号で検索</h2>
+    <div class="search-row">
+      <input type="text" id="search-input" placeholder="会員番号を入力（例: 10000001）" inputmode="numeric">
+      <button class="btn-search" id="btn-search" onclick="doSearch()">検索</button>
+    </div>
+
+    <div class="search-row">
+      <input type="text" id="compare-input" placeholder="比較用会員番号（任意）" inputmode="numeric">
+      <button class="btn-search" onclick="doCompare()">比較する</button>
+    </div>
+
+    <div class="type-row">
+      <button class="type-btn active" onclick="setType('takkyu', this)">硬式</button>
+      <button class="type-btn" onclick="setType('large', this)">ラージ</button>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="pingpong">🏓</div>
+    データを取得中...
+  </div>
+
+  <div class="not-found" id="not-found">
+    <div class="empty-icon">😔</div>
+    該当するデータが見つかりませんでした
+  </div>
+
+  <div class="error-box" id="error-box">
+    <div class="empty-icon">⚠️</div>
+    通信エラーが発生しました<br>
+    時間をおいて再度お試しください
+  </div>
+
+  <div class="result" id="result">
+    <div class="profile-card" id="profile-card">
+      <div class="profile-info">
+        <div class="name" id="player-id"></div>
+        <div class="meta" id="player-meta"></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="lbl">現在のポイント</div><div class="val" id="stat-cur">—</div></div>
+      <div class="stat"><div class="lbl">最高ポイント</div><div class="val" id="stat-best">—</div></div>
+      <div class="stat"><div class="lbl">前回比</div><div class="val" id="stat-diff">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ポイント推移</div>
+
+      <div class="range-btns">
+        <button class="range-btn active" id="btn-all" onclick="setPreset(0, this)">全期間</button>
+        <button class="range-btn" onclick="setPreset(12, this)">1年</button>
+        <button class="range-btn" onclick="setPreset(6, this)">半年</button>
+      </div>
+
+      <div class="slider-area">
+        <div class="slider-labels">
+          <span id="label-start">—</span>
+          <span id="label-end">—</span>
+        </div>
+        <div class="dual-slider-wrap">
+          <div class="slider-track"></div>
+          <div class="slider-fill" id="slider-fill"></div>
+          <input type="range" id="slider-start" min="0" max="100" value="0">
+          <input type="range" id="slider-end" min="0" max="100" value="100">
+        </div>
+        <div class="nav-btns">
+          <button class="nav-btn" onclick="shiftRange(-1)">◀ 前へ</button>
+          <div class="nav-center" id="nav-count"></div>
+          <button class="nav-btn" onclick="shiftRange(1)">次へ ▶</button>
+        </div>
+      </div>
+
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">大会別一覧</div>
+      <div class="filter-row" id="filter-row"></div>
+      <div class="ox">
+        <table>
+          <thead><tr><th>日付</th><th>大会名</th><th>ポイント</th><th>前回比</th></tr></thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty" id="empty-state">
+    <div class="empty-icon">🔍</div>
+    会員番号を入力して検索してください
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbzrn4cNnURO-x5pUVAT89_smrPQmPe8TzNNpD_4CO4SMj9QD7j9iPobbIggYU08NAhD9A/exec';
+
+let currentType = 'takkyu';
+let allData = [];
+let compareData = [];
+let filteredData = [];
+let chartInstance = null;
+let sliderStart = 0;
+let sliderEnd = 0;
+
+function setType(type, btn) {
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function hideAll() {
+  ['loading','result','not-found','empty-state','error-box'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+
+function setSearchEnabled(enabled) {
+  const btn = document.getElementById('btn-search');
+  btn.disabled = !enabled;
+}
+
+async function doSearch() {
+  const id = document.getElementById('search-input').value.trim();
+  if (!id) return;
+
+  allData = [];
+  filteredData = [];
+  compareData = [];
+  if (chartInstance) chartInstance.destroy();
+
+  setSearchEnabled(false);
+  hideAll();
+  document.getElementById('loading').style.display = 'block';
+
+  try {
+    const res = await fetch(`${API_URL}?id=${encodeURIComponent(id)}&type=${currentType}`);
+    const data = await res.json();
+
+    hideAll();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      document.getElementById('not-found').style.display = 'block';
+      return;
+    }
+
+    allData = data;
+    filteredData = data;
+    renderResult(id, data);
+
+  } catch(e) {
+    hideAll();
+    document.getElementById('error-box').style.display = 'block';
+  } finally {
+    setSearchEnabled(true);
+  }
+}
+
+async function doCompare() {
+  const compareId = document.getElementById('compare-input').value.trim();
+  if (!compareId) return;
+
+  try {
+    const res = await fetch(`${API_URL}?id=${encodeURIComponent(compareId)}&type=${currentType}`);
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      alert('比較用データが見つかりませんでした');
+      return;
+    }
+
+    compareData = data;
+    renderChartWithCompare(filteredData, compareData);
+
+  } catch(e) {
+    alert('通信エラーが発生しました');
+  }
+}
+
+function renderResult(id, data) {
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('player-id').textContent = id;
+  const latest = data[data.length-1];
+  document.getElementById('stat-cur').textContent = latest['レイティング'];
+  document.getElementById('stat-best').textContent = Math.max(...data.map(d=>d['レイティング']));
+  document.getElementById('stat-diff').textContent = (latest['レイティング'] - data[data.length-2]?.['レイティング'] || 0);
+  renderChart(data);
+}
+
+function renderChart(data) {
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('chart'), {
+    type: 'line',
+    data: {
+      labels: data.map(d => d['日付']),
+      datasets: [{
+        label: '検索中',
+        data: data.map(d => d['レイティング']),
+        borderColor: '#1a56db',
+        backgroundColor: 'rgba(26,86,219,0.07)',
+        pointBackgroundColor: '#1a56db',
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins: {
+        legend:{display:true},
+        tooltip:{callbacks:{label:ctx=>' '+ctx.parsed.y+' pt'}}
+      },
+      scales:{
+        x:{ticks:{color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}}
+      }
+    }
+  });
+}
+
+function renderChartWithCompare(mainData, compData) {
+  if (!mainData.length) return;
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(document.getElementById('chart'), {
+    type:'line',
+    data:{
+      labels: mainData.map(d=>d['日付']),
+      datasets:[
+        {
+          label:'検索中',
+          data: mainData.map(d=>d['レイティング']),
+          borderColor:'#1a56db',
+          backgroundColor:'rgba(26,86,219,0.07)',
+          pointBackgroundColor:'#1a56db',
+          pointRadius:4,
+          pointHoverRadius:7,
+          fill:true,
+          tension:0.3
+        },
+        {
+          label:'比較中',
+          data: compData.map(d=>d['レイティング']),
+          borderColor:'#e02424',
+          backgroundColor:'rgba(224,36,36,0.07)',
+          pointBackgroundColor:'#e02424',
+          pointRadius:4,
+          pointHoverRadius:7,
+          fill:true,
+          tension:0.3
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true},
+        tooltip:{callbacks:{label:ctx=>' '+ctx.parsed.y+' pt'}}
+      },
+      scales:{
+        x:{ticks:{color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}}
+      }
+    }
+  });
+}
+
+// ===== スライダー =====
+function initSlider(total) {
+  const s = document.getElementById('slider-start');
+  const e = document.getElementById('slider-end');
+
+  s.min = 0; s.max = total - 1; s.value = 0;
+  e.min = 0; e.max = total - 1; e.value = total - 1;
+
+  sliderStart = 0;
+  sliderEnd = total - 1;
+
+  updateSliderUI();
+
+  s.oninput = () => {
+    sliderStart = Math.min(parseInt(s.value), sliderEnd - 1);
+    s.value = sliderStart;
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    onSliderChange();
+  };
+
+  e.oninput = () => {
+    sliderEnd = Math.max(parseInt(e.value), sliderStart + 1);
+    e.value = sliderEnd;
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    onSliderChange();
+  };
+}
+
+function onSliderChange() {
+  updateSliderUI();
+  updateChart();
+}
+
+function updateSliderUI() {
+  const data = filteredData;
+  if (!data.length) return;
+
+  const total = data.length;
+
+  document.getElementById('label-start').textContent = data[sliderStart]?.['日付'] || '—';
+  document.getElementById('label-end').textContent = data[sliderEnd]?.['日付'] || '—';
+
+  const pct = v => (v / Math.max(total - 1, 1)) * 100;
+  const fill = document.getElementById('slider-fill');
+  fill.style.left = pct(sliderStart) + '%';
+  fill.style.width = (pct(sliderEnd) - pct(sliderStart)) + '%';
+
+  const count = sliderEnd - sliderStart + 1;
+  document.getElementById('nav-count').textContent = count + '大会 表示中';
+}
+
+function updateChart() {
+  if (!chartInstance || !filteredData.length) return;
+  const visible = filteredData.slice(sliderStart, sliderEnd + 1);
+  chartInstance.data.labels = visible.map(d => d['日付']);
+  chartInstance.data.datasets[0].data = visible.map(d => d['レイティング']);
+  chartInstance.update();
+}
+
+function setPreset(months, btn) {
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const data = filteredData;
+  if (!data.length) return;
+
+  if (months === 0) {
+    sliderStart = 0;
+    sliderEnd = data.length - 1;
+  } else {
+    const latest = new Date(data[data.length - 1]['日付']);
+    const limit = new Date(latest);
+    limit.setMonth(limit.getMonth() - months);
+
+    const limitStr = limit.toISOString().split('T')[0];
+    let idx = data.findIndex(d => d['日付'] >= limitStr);
+    if (idx === -1) idx = 0;
+
+    sliderStart = idx;
+    sliderEnd = data.length - 1;
+  }
+
+  document.getElementById('slider-start').value = sliderStart;
+  document.getElementById('slider-end').value = sliderEnd;
+
+  updateSliderUI();
+  updateChart();
+}
+
+function shiftRange(dir) {
+  const data = filteredData;
+  if (!data.length) return;
+
+  const span = sliderEnd - sliderStart;
+  const step = Math.max(1, Math.floor(span * 0.5));
+
+  let ns = sliderStart + dir * step;
+  let ne = sliderEnd + dir * step;
+
+  if (ns < 0) { ne -= ns; ns = 0; }
+  if (ne > data.length - 1) { ns -= (ne - (data.length - 1)); ne = data.length - 1; }
+  ns = Math.max(0, ns);
+
+  sliderStart = ns;
+  sliderEnd = ne;
+
+  document.getElementById('slider-start').value = sliderStart;
+  document.getElementById('slider-end').value = sliderEnd;
+
+  updateSliderUI();
+  updateChart();
+
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+}
+
+function renderChart(data) {
+  if (chartInstance) chartInstance.destroy();
+
+  const visible = data.slice(sliderStart, sliderEnd + 1);
+
+  chartInstance = new Chart(document.getElementById('chart'), {
+    type: 'line',
+    data: {
+      labels: visible.map(d => d['日付']),
+      datasets: [{
+        data: visible.map(d => d['レイティング']),
+        borderColor: '#1a56db',
+        backgroundColor: 'rgba(26,86,219,0.07)',
+        pointBackgroundColor: '#1a56db',
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => ctx[0].label,
+            label: ctx => ' ' + ctx.parsed.y.toLocaleString() + ' pt'
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#9ca3af', font: { size: 10 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 10 },
+          grid: { color: 'rgba(0,0,0,.04)' }
+        },
+        y: {
+          ticks: { color: '#9ca3af', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,.04)' }
+        }
+      }
+    }
+  });
+}
+
+function renderTable(data) {
+  const reversed = [...data].reverse();
+
+  document.getElementById('table-body').innerHTML = reversed.map((r, i, arr) => {
+    const prev = arr[i + 1];
+    const dv = prev ? r['レイティング'] - prev['レイティング'] : null;
+
+    const dstr = dv === null ? '' :
+      dv > 0 ? `<span class="du">+${dv}</span>` :
+      dv < 0 ? `<span class="dd">${dv}</span>` :
+      `<span class="dz">±0</span>`;
+
+    return `<tr>
+      <td>${r['日付']}</td>
+      <td class="name-col">${r['大会名']}</td>
+      <td>${r['レイティング'].toLocaleString()}</td>
+      <td>${dstr}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+</script>
+
+</body>
+</html>
