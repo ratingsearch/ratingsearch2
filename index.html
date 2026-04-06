@@ -482,16 +482,8 @@ async function doSearch() {
 
 async function doCompare() {
   const cid = document.getElementById('compare-input').value.trim();
-  if (!mainId) {
-    alert("先にメインの会員番号を検索してください");
-    return;
-  }
   if (!cid) {
     alert("比較する会員番号を入力してください");
-    return;
-  }
-  if (cid === mainId) {
-    alert("同じ会員番号は比較できません");
     return;
   }
 
@@ -500,6 +492,41 @@ async function doCompare() {
   document.getElementById('loading').style.display = 'block';
 
   try {
+    // ★ メイン未検索なら compare入力をメイン扱いにする
+    if (!mainId) {
+      mainId = cid;
+      document.getElementById("search-input").value = cid;
+
+      const data = await fetchData(mainId);
+
+      hideAll();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        document.getElementById('not-found').style.display = 'block';
+        return;
+      }
+
+      allData = data;
+      filteredData = data;
+
+      mergeDates(filteredData, []);
+      mainPointsSparse = buildSparseSeries(mergedLabels, filteredData);
+      comparePointsSparse = [];
+      compareId = '';
+
+      renderResult(mainId, filteredData);
+      document.getElementById('result').style.display = 'block';
+      return;
+    }
+
+    // ★ ここから通常の比較
+    if (cid === mainId) {
+      alert("同じ会員番号は比較できません");
+      hideAll();
+      document.getElementById('result').style.display = 'block';
+      return;
+    }
+
     const cdata = await fetchData(cid);
 
     hideAll();
@@ -515,6 +542,9 @@ async function doCompare() {
     compareFilteredData = cdata;
 
     mergeDates(filteredData, compareFilteredData);
+
+    mainPointsSparse = buildSparseSeries(mergedLabels, filteredData);
+    comparePointsSparse = buildSparseSeries(mergedLabels, compareFilteredData);
 
     initSlider(mergedLabels.length);
     renderChart();
