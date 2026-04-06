@@ -215,18 +215,7 @@ td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; font-family: 'DM Mono'
 td.name-col { font-family: 'Noto Sans JP', sans-serif; font-size: 12px; }
 tr:last-child td { border-bottom: none; }
 
-.not-found {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 48px 24px;
-  text-align: center;
-  color: var(--text2);
-  font-size: 14px;
-  display: none;
-}
-
-.error-box {
+.not-found, .error-box {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -384,15 +373,21 @@ let compareId = '';
 let compareAllData = [];
 let compareFilteredData = [];
 
-// 統合データ（X軸）
+// 統合X軸（日付一覧）
 let mergedLabels = [];
-let mergedMainPoints = [];
-let mergedComparePoints = [];
+
+// 点だけのデータ（null除外済み）
+let mainPointsSparse = [];
+let comparePointsSparse = [];
 
 let chartInstance = null;
 
 let sliderStart = 0;
 let sliderEnd = 0;
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function setType(type, btn) {
   currentType = type;
@@ -423,18 +418,22 @@ async function fetchData(id) {
 
 function mergeDates(mainData, compData) {
   const set = new Set();
-
   mainData.forEach(d => set.add(d['日付']));
   compData.forEach(d => set.add(d['日付']));
+  mergedLabels = Array.from(set).sort();
+}
 
-  const labels = Array.from(set).sort();
+function buildSparseSeries(labels, data) {
+  const map = new Map(data.map(d => [d['日付'], d['レイティング']]));
+  const points = [];
 
-  const mainMap = new Map(mainData.map(d => [d['日付'], d['レイティング']]));
-  const compMap = new Map(compData.map(d => [d['日付'], d['レイティング']]));
+  labels.forEach((date, idx) => {
+    if (map.has(date)) {
+      points.push({ x: idx, y: map.get(date) });
+    }
+  });
 
-  mergedLabels = labels;
-  mergedMainPoints = labels.map(date => mainMap.has(date) ? mainMap.get(date) : null);
-  mergedComparePoints = labels.map(date => compMap.has(date) ? compMap.get(date) : null);
+  return points;
 }
 
 async function doSearch() {
@@ -470,6 +469,9 @@ async function doSearch() {
     filteredData = data;
 
     mergeDates(filteredData, []);
+    mainPointsSparse = buildSparseSeries(mergedLabels, filteredData);
+    comparePointsSparse = [];
+
     renderResult(id, data);
 
   } catch(e) {
@@ -563,6 +565,9 @@ async function doCompare() {
       return;
     }
 
+    // ★ GAS負荷対策：200ms待つ
+    await sleep(200);
+
     const compData = await fetchData(compInput);
 
     hideAll();
@@ -596,6 +601,7 @@ async function doCompare() {
     setSearchEnabled(true);
   }
 }
+
 function renderResult(id, data) {
   const cur = data[data.length - 1]['レイティング'];
   const best = Math.max(...data.map(d => d['レイティング']));
@@ -647,6 +653,9 @@ function applyFilter(type, btn) {
 
   mergeDates(filteredData, compareFilteredData);
 
+  mainPointsSparse = buildSparseSeries(mergedLabels, filteredData);
+  comparePointsSparse = buildSparseSeries(mergedLabels, compareFilteredData);
+
   initSlider(mergedLabels.length);
   renderChart();
   renderTable(filteredData);
@@ -685,7 +694,7 @@ function initSlider(total) {
 
 function onSliderChange() {
   updateSliderUI();
-  updateChart();
+  renderChart();
 }
 
 function updateSliderUI() {
@@ -703,23 +712,6 @@ function updateSliderUI() {
 
   const count = sliderEnd - sliderStart + 1;
   document.getElementById('nav-count').textContent = count + '大会 表示中';
-}
-
-function updateChart() {
-  if (!chartInstance) return;
-
-  const labels = mergedLabels.slice(sliderStart, sliderEnd + 1);
-  const mainPts = mergedMainPoints.slice(sliderStart, sliderEnd + 1);
-  const compPts = mergedComparePoints.slice(sliderStart, sliderEnd + 1);
-
-  chartInstance.data.labels = labels;
-  chartInstance.data.datasets[0].data = mainPts;
-
-  if (chartInstance.data.datasets[1]) {
-    chartInstance.data.datasets[1].data = compPts;
-  }
-
-  chartInstance.update();
 }
 
 function setPreset(months, btn) {
@@ -749,7 +741,7 @@ function setPreset(months, btn) {
   document.getElementById('slider-end').value = sliderEnd;
 
   updateSliderUI();
-  updateChart();
+  renderChart();
 }
 
 function shiftRange(dir) {
@@ -772,7 +764,7 @@ function shiftRange(dir) {
   document.getElementById('slider-end').value = sliderEnd;
 
   updateSliderUI();
-  updateChart();
+  renderChart();
 
   document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
 }
@@ -781,8 +773,12 @@ function renderChart() {
   if (chartInstance) chartInstance.destroy();
 
   const labels = mergedLabels.slice(sliderStart, sliderEnd + 1);
-  const mainPts = mergedMainPoints.slice(sliderStart, sliderEnd + 1);
-  const compPts = mergedComparePoints.slice(sliderStart, sliderEnd + 1);
+
+  const mainPts = mainPointsSparse.filter(p => p.x >= sliderStart && p.x <= sliderEnd)
+                                 .map(p => ({ x: p.x - sliderStart, y: p.y }));
+
+  const compPts = comparePointsSparse.filter(p => p.x >= sliderStart && p.x <= sliderEnd)
+                                    .map(p => ({ x: p.x - sliderStart, y: p.y }));
 
   const datasets = [
     {
@@ -795,9 +791,7 @@ function renderChart() {
       pointHoverRadius: 7,
       fill: true,
       tension: 0.3,
-
-      /* ★ nullを飛ばして線を繋ぐ */
-      spanGaps: true
+      parsing: false
     }
   ];
 
@@ -812,9 +806,7 @@ function renderChart() {
       pointHoverRadius: 7,
       fill: false,
       tension: 0.3,
-
-      /* ★ nullを飛ばして線を繋ぐ */
-      spanGaps: true
+      parsing: false
     });
   }
 
@@ -831,11 +823,8 @@ function renderChart() {
         legend: { display: true },
         tooltip: {
           callbacks: {
-            title: ctx => ctx[0].label,
-            label: ctx => {
-              if (ctx.parsed.y === null) return ' ' + ctx.dataset.label + " : -";
-              return ' ' + ctx.dataset.label + " : " + ctx.parsed.y.toLocaleString() + ' pt';
-            }
+            title: ctx => labels[ctx[0].parsed.x],
+            label: ctx => ' ' + ctx.dataset.label + " : " + ctx.parsed.y.toLocaleString() + ' pt'
           }
         }
       },
