@@ -249,11 +249,28 @@ tr:last-child td { border-bottom: none; }
 @media (max-width: 480px) {
   .stats { gap: 8px; }
   .stat .val { font-size: 18px; }
+
+  /* 検索欄は縦にしてOK */
   .search-row { flex-wrap: wrap; }
   .btn-search { flex: 1; }
-  .compare-area { flex-direction: column; }
-  .btn-compare-run { width: 100%; }
-  .btn-compare-mini { margin-left: 0; }
+
+  /* 硬式・ラージ・比較する を上に横並び */
+  .type-row {
+    flex-wrap: nowrap;
+  }
+
+  .btn-compare-mini {
+    margin-left: auto;
+  }
+
+  /* 比較入力欄は横並び（1列）にする */
+  .compare-area {
+    flex-direction: row;
+  }
+
+  .btn-compare-run {
+    width: auto;
+  }
 }
 </style>
 </head>
