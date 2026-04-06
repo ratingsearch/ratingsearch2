@@ -341,7 +341,7 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div class="card">
-      <div class="card-title">大会別一覧（メインの人）</div>
+      <div class="card-title">大会別一覧（<span id="table-title-id">—</span>）</div>
       <div class="filter-row" id="filter-row"></div>
       <div class="ox">
         <table>
@@ -603,6 +603,7 @@ async function doCompare() {
 }
 
 function renderResult(id, data) {
+  document.getElementById('table-title-id').textContent = id;
   const cur = data[data.length - 1]['レイティング'];
   const best = Math.max(...data.map(d => d['レイティング']));
   const worst = Math.min(...data.map(d => d['レイティング']));
