@@ -32,7 +32,16 @@ header { background: var(--hdr); padding: 20px 24px; display: flex; align-items:
 
 .container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
 
-.search-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+.search-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+
+  display: flex;
+  flex-direction: column;
+}
 .search-card h2 { font-size: 12px; font-weight: 700; color: var(--text2); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; }
 
 .search-row { display: flex; gap: 10px; }
