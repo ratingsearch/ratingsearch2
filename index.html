@@ -256,23 +256,30 @@ tr:last-child td { border-bottom: none; }
 .ox { overflow-x: auto; }
 
   @media (max-width: 480px) {
-  .type-row { order: 1; }
-  .compare-area { order: 2; }
-}
   .stats { gap: 8px; }
   .stat .val { font-size: 18px; }
 
-  /* 検索欄は縦にしてOK */
   .search-row { flex-wrap: wrap; }
-  
-  /* 硬式・ラージ・比較する を上に横並び */
+
+  /* 比較入力は横並び */
+  .compare-area {
+    flex-direction: row;
+  }
+
+  /* 硬式・ラージ・比較する は横並び */
   .type-row {
     flex-wrap: nowrap;
   }
 
+  /* 比較するボタン右寄せ */
   .btn-compare-mini {
     margin-left: auto;
   }
+
+  .btn-compare-run {
+    width: auto;
+  }
+}
 
   /* 比較入力欄は横並び（1列）にする */
   .compare-area {
