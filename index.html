@@ -481,9 +481,11 @@ async function doSearch() {
 }
 
 async function doCompare() {
-  const cid = document.getElementById('compare-input').value.trim();
-  if (!cid) {
-    alert("比較する会員番号を入力してください");
+  const mainInput = document.getElementById('search-input').value.trim();
+  const compInput = document.getElementById('compare-input').value.trim();
+
+  if (!mainInput && !compInput) {
+    alert("会員番号を入力してください");
     return;
   }
 
@@ -492,10 +494,10 @@ async function doCompare() {
   document.getElementById('loading').style.display = 'block';
 
   try {
-    // ★ メイン未検索なら compare入力をメイン扱いにする
-    if (!mainId) {
-      mainId = cid;
-      document.getElementById("search-input").value = cid;
+    // ★ メイン側が未入力なら、比較入力をメインとして使う
+    if (!mainInput && compInput) {
+      mainId = compInput;
+      document.getElementById('search-input').value = compInput;
 
       const data = await fetchData(mainId);
 
@@ -509,37 +511,72 @@ async function doCompare() {
       allData = data;
       filteredData = data;
 
+      compareId = '';
+      compareAllData = [];
+      compareFilteredData = [];
+
       mergeDates(filteredData, []);
       mainPointsSparse = buildSparseSeries(mergedLabels, filteredData);
       comparePointsSparse = [];
-      compareId = '';
 
       renderResult(mainId, filteredData);
       document.getElementById('result').style.display = 'block';
       return;
     }
 
-    // ★ ここから通常の比較
-    if (cid === mainId) {
-      alert("同じ会員番号は比較できません");
+    // ★ メイン側が入力されてるなら、それをメインとして使う
+    mainId = mainInput;
+
+    const mainData = await fetchData(mainId);
+
+    if (!Array.isArray(mainData) || mainData.length === 0) {
       hideAll();
+      document.getElementById('not-found').style.display = 'block';
+      return;
+    }
+
+    allData = mainData;
+    filteredData = mainData;
+
+    // ★ 比較が未入力ならメインだけ表示
+    if (!compInput) {
+      hideAll();
+
+      compareId = '';
+      compareAllData = [];
+      compareFilteredData = [];
+
+      mergeDates(filteredData, []);
+      mainPointsSparse = buildSparseSeries(mergedLabels, filteredData);
+      comparePointsSparse = [];
+
+      renderResult(mainId, filteredData);
       document.getElementById('result').style.display = 'block';
       return;
     }
 
-    const cdata = await fetchData(cid);
+    // ★ 比較あり（2人表示）
+    if (compInput === mainId) {
+      hideAll();
+      alert("同じ会員番号は比較できません");
+      document.getElementById('result').style.display = 'block';
+      return;
+    }
+
+    const compData = await fetchData(compInput);
 
     hideAll();
 
-    if (!Array.isArray(cdata) || cdata.length === 0) {
+    if (!Array.isArray(compData) || compData.length === 0) {
       alert("比較相手のデータが見つかりませんでした");
+      renderResult(mainId, filteredData);
       document.getElementById('result').style.display = 'block';
       return;
     }
 
-    compareId = cid;
-    compareAllData = cdata;
-    compareFilteredData = cdata;
+    compareId = compInput;
+    compareAllData = compData;
+    compareFilteredData = compData;
 
     mergeDates(filteredData, compareFilteredData);
 
@@ -549,6 +586,7 @@ async function doCompare() {
     initSlider(mergedLabels.length);
     renderChart();
 
+    renderResult(mainId, filteredData);
     document.getElementById('result').style.display = 'block';
 
   } catch(e) {
@@ -558,7 +596,6 @@ async function doCompare() {
     setSearchEnabled(true);
   }
 }
-
 function renderResult(id, data) {
   const cur = data[data.length - 1]['レイティング'];
   const best = Math.max(...data.map(d => d['レイティング']));
