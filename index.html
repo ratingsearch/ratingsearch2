@@ -298,27 +298,27 @@ tr:last-child td { border-bottom: none; }
 
 <div class="container">
   <div class="search-card">
-    <h2>会員番号で検索</h2>
+  <h2>会員番号で検索</h2>
 
-    <!-- 2段目：会員番号 + 検索 -->
-    <div class="search-row">
-      <input type="text" id="search-input" placeholder="会員番号を入力（例: 10000001）" inputmode="numeric">
-      <button class="btn-search" id="btn-search" onclick="doSearch()">検索</button>
-    </div>
-
-    <!-- 3段目：硬式・ラージ + 比較するボタン -->
-    <div class="type-row">
-      <button class="type-btn active" onclick="setType('takkyu', this)">硬式</button>
-      <button class="type-btn" onclick="setType('large', this)">ラージ</button>
-      <button class="btn-compare-mini" id="btn-toggle-compare" onclick="toggleCompareInput()">比較する</button>
-    </div>
-
-    <!-- 4段目：比較入力（押したら出る） -->
-    <div class="compare-area" id="compare-area">
-      <input type="text" id="compare-input" placeholder="比較する会員番号" inputmode="numeric">
-      <button class="btn-compare-run" id="btn-compare" onclick="doCompare()">開始</button>
-    </div>
+  <!-- 2段目：会員番号 + 検索 -->
+  <div class="search-row">
+    <input type="text" id="search-input" placeholder="会員番号を入力（例: 10000001）" inputmode="numeric">
+    <button class="btn-search" id="btn-search" onclick="doSearch()">検索</button>
   </div>
+
+  <!-- 3段目：比較する会員番号 + 開始 -->
+  <div class="compare-area" id="compare-area">
+    <input type="text" id="compare-input" placeholder="比較する会員番号" inputmode="numeric">
+    <button class="btn-compare-run" id="btn-compare" onclick="doCompare()">開始</button>
+  </div>
+
+  <!-- 4段目：硬式・ラージ・比較する -->
+  <div class="type-row">
+    <button class="type-btn active" onclick="setType('takkyu', this)">硬式</button>
+    <button class="type-btn" onclick="setType('large', this)">ラージ</button>
+    <button class="btn-compare-mini" id="btn-toggle-compare" onclick="toggleCompareInput()">比較する</button>
+  </div>
+</div>
 
   <div class="loading" id="loading">
     <div class="pingpong">🏓</div>
