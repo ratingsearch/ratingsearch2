@@ -32,80 +32,50 @@ header { background: var(--hdr); padding: 20px 24px; display: flex; align-items:
 
 .container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
 
-.search-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
-.search-card h2 { font-size: 12px; font-weight: 700; color: var(--text2); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; }
+.search-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 18px; }
+.search-card h2 { font-size: 12px; font-weight: 700; color: var(--text2); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 12px; }
 
-.search-row { display: flex; gap: 10px; }
-.search-row input { flex: 1; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 16px; font-family: 'DM Mono', monospace; color: var(--text); background: white; outline: none; transition: border-color .2s; }
+.search-row { display: flex; gap: 8px; }
+.search-row input { flex: 1; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; font-family: 'DM Mono', monospace; color: var(--text); background: white; outline: none; transition: border-color .2s; }
 .search-row input:focus { border-color: var(--accent); }
-.search-row input::placeholder { color: #c0c8d8; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; }
-
-.type-row { display: flex; gap: 8px; margin-top: 12px; }
-.type-btn { padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; color: var(--text2); transition: all .15s; }
-.type-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+.search-row input::placeholder { color: #c0c8d8; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; }
 
 .btn-search {
-  padding: 12px 24px;
+  padding: 11px 18px;
   background: var(--accent);
   color: white;
   border: none;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   font-family: 'Noto Sans JP', sans-serif;
   white-space: nowrap;
   transition: background .15s, opacity .15s;
 }
-
 .btn-search:hover { background: #1648c8; }
-.btn-search:active { transform: scale(.98); }
+.btn-search:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.btn-search:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-compare {
+.compare-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
   margin-top: 10px;
-  width: 100%;
-  padding: 10px 16px;
-  background: white;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: 'Noto Sans JP', sans-serif;
-  color: var(--text);
-  transition: background .15s, transform .15s;
 }
 
-.btn-compare:hover { background: var(--bg); }
-.btn-compare:active { transform: scale(.99); }
-
-.compare-area {
-  margin-top: 12px;
-  display: none;
-  gap: 10px;
-  align-items: center;
-}
-
-.compare-area input {
-  flex: 1;
-  padding: 12px 16px;
+.compare-row input {
+  padding: 11px 14px;
   border: 1.5px solid var(--border);
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 15px;
   font-family: 'DM Mono', monospace;
   outline: none;
+  background: white;
 }
+.compare-row input:focus { border-color: var(--accent2); }
 
-.compare-area input:focus { border-color: var(--accent2); }
-
-.btn-compare-run {
-  padding: 12px 20px;
+.btn-compare {
+  padding: 11px 16px;
   background: var(--accent2);
   color: white;
   border: none;
@@ -116,8 +86,12 @@ header { background: var(--hdr); padding: 20px 24px; display: flex; align-items:
   font-family: 'Noto Sans JP', sans-serif;
   white-space: nowrap;
 }
+.btn-compare:hover { opacity: 0.9; }
+.btn-compare:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.btn-compare-run:hover { opacity: 0.9; }
+.type-row { display: flex; gap: 8px; margin-top: 12px; }
+.type-btn { padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; color: var(--text2); transition: all .15s; }
+.type-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
 
 .loading { text-align: center; padding: 48px; color: var(--text2); font-size: 14px; display: none; }
 
@@ -179,8 +153,6 @@ header { background: var(--hdr); padding: 20px 24px; display: flex; align-items:
 .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 12px; text-align: center; }
 .stat .lbl { font-size: 11px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
 .stat .val { font-size: 22px; font-weight: 700; font-family: 'DM Mono', monospace; }
-.val.up { color: var(--up); }
-.val.dn { color: var(--down); }
 
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; margin-bottom: 16px; }
 .card-title { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
@@ -188,7 +160,6 @@ header { background: var(--hdr); padding: 20px 24px; display: flex; align-items:
 .range-btns { display: flex; gap: 6px; margin-bottom: 14px; }
 .range-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: white; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; color: var(--text2); transition: all .15s; }
 .range-btn.active { background: var(--hdr); border-color: var(--hdr); color: white; }
-.range-btn:hover:not(.active) { background: var(--bg); }
 
 .slider-area { margin-bottom: 14px; }
 .slider-labels { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; gap: 8px; }
@@ -204,7 +175,6 @@ header { background: var(--hdr); padding: 20px 24px; display: flex; align-items:
 .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
 .nav-btn { padding: 7px 16px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 13px; cursor: pointer; color: var(--text2); font-family: 'Noto Sans JP', sans-serif; transition: all .15s; }
 .nav-btn:hover { background: var(--bg); }
-.nav-btn:active { transform: scale(.97); }
 .nav-center { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; }
 
 .chart-wrap { position: relative; width: 100%; height: 260px; margin-top: 16px; }
@@ -218,22 +188,8 @@ th { padding: 8px 12px; text-align: left; color: var(--text2); font-weight: 500;
 td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; font-family: 'DM Mono', monospace; font-size: 13px; }
 td.name-col { font-family: 'Noto Sans JP', sans-serif; font-size: 12px; }
 tr:last-child td { border-bottom: none; }
-.du { color: var(--up); font-weight: 500; }
-.dd { color: var(--down); font-weight: 500; }
-.dz { color: var(--text2); }
 
-.not-found {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 48px 24px;
-  text-align: center;
-  color: var(--text2);
-  font-size: 14px;
-  display: none;
-}
-
-.error-box {
+.not-found, .error-box {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -249,10 +205,8 @@ tr:last-child td { border-bottom: none; }
 .ox { overflow-x: auto; }
 
 @media (max-width: 480px) {
-  .stats { gap: 8px; }
-  .stat .val { font-size: 18px; }
-  .compare-area { flex-direction: column; }
-  .btn-compare-run { width: 100%; }
+  .compare-row { grid-template-columns: 1fr; }
+  .btn-compare { width: 100%; }
 }
 </style>
 </head>
@@ -276,11 +230,10 @@ tr:last-child td { border-bottom: none; }
       <button class="btn-search" id="btn-search" onclick="doSearch()">検索</button>
     </div>
 
-    <button class="btn-compare" onclick="toggleCompare()">比較する（2人目を追加）</button>
-
-    <div class="compare-area" id="compare-area">
-      <input type="text" id="compare-input" placeholder="比較する会員番号を入力" inputmode="numeric">
-      <button class="btn-compare-run" id="btn-compare-run" onclick="doCompare()">比較開始</button>
+    <!-- ★ コンパクト比較UI -->
+    <div class="compare-row">
+      <input type="text" id="compare-input" placeholder="比較する会員番号（任意）" inputmode="numeric">
+      <button class="btn-compare" id="btn-compare" onclick="doCompare()">比較</button>
     </div>
 
     <div class="type-row">
@@ -327,7 +280,7 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div class="card">
-      <div class="card-title">ポイント推移（比較対応）</div>
+      <div class="card-title">ポイント推移（統合日付）</div>
 
       <div class="range-btns">
         <button class="range-btn active" id="btn-all" onclick="setPreset(0, this)">全期間</button>
@@ -380,18 +333,22 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzrn4cNnURO-x5pUVAT89_s
 let currentType = 'takkyu';
 
 // メイン
+let mainId = '';
 let allData = [];
 let filteredData = [];
 
-// 比較相手
+// 比較
 let compareId = '';
 let compareAllData = [];
 let compareFilteredData = [];
 
-// chart
+// 統合データ（X軸）
+let mergedLabels = [];
+let mergedMainPoints = [];
+let mergedComparePoints = [];
+
 let chartInstance = null;
 
-// slider
 let sliderStart = 0;
 let sliderEnd = 0;
 
@@ -399,11 +356,6 @@ function setType(type, btn) {
   currentType = type;
   document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-}
-
-function toggleCompare() {
-  const area = document.getElementById('compare-area');
-  area.style.display = (area.style.display === 'flex') ? 'none' : 'flex';
 }
 
 function hideAll() {
@@ -414,7 +366,7 @@ function hideAll() {
 
 function setSearchEnabled(enabled) {
   document.getElementById('btn-search').disabled = !enabled;
-  document.getElementById('btn-compare-run').disabled = !enabled;
+  document.getElementById('btn-compare').disabled = !enabled;
 }
 
 async function fetchData(id) {
@@ -422,11 +374,31 @@ async function fetchData(id) {
   return await res.json();
 }
 
+function mergeDates(mainData, compData) {
+  const set = new Set();
+
+  mainData.forEach(d => set.add(d['日付']));
+  compData.forEach(d => set.add(d['日付']));
+
+  const labels = Array.from(set).sort(); // YYYY-MM-DDならこれでOK
+
+  const mainMap = new Map(mainData.map(d => [d['日付'], d['レイティング']]));
+  const compMap = new Map(compData.map(d => [d['日付'], d['レイティング']]));
+
+  const mainPoints = labels.map(date => mainMap.has(date) ? mainMap.get(date) : null);
+  const compPoints = labels.map(date => compMap.has(date) ? compMap.get(date) : null);
+
+  mergedLabels = labels;
+  mergedMainPoints = mainPoints;
+  mergedComparePoints = compPoints;
+}
+
 async function doSearch() {
   const id = document.getElementById('search-input').value.trim();
   if (!id) return;
 
-  // 初期化
+  mainId = id;
+
   compareId = '';
   compareAllData = [];
   compareFilteredData = [];
@@ -453,6 +425,9 @@ async function doSearch() {
     allData = data;
     filteredData = data;
 
+    // 比較相手がいない場合でも merge用に空配列を渡す
+    mergeDates(filteredData, []);
+
     renderResult(id, data);
 
   } catch(e) {
@@ -464,11 +439,16 @@ async function doSearch() {
 }
 
 async function doCompare() {
-  const mainId = document.getElementById('search-input').value.trim();
   const cid = document.getElementById('compare-input').value.trim();
-  if (!mainId || !cid) return;
-
-  if (mainId === cid) {
+  if (!mainId) {
+    alert("先にメインの会員番号を検索してください");
+    return;
+  }
+  if (!cid) {
+    alert("比較する会員番号を入力してください");
+    return;
+  }
+  if (cid === mainId) {
     alert("同じ会員番号は比較できません");
     return;
   }
@@ -478,19 +458,6 @@ async function doCompare() {
   document.getElementById('loading').style.display = 'block';
 
   try {
-    // メインが未取得なら取得
-    if (!allData.length) {
-      const mainData = await fetchData(mainId);
-      if (!Array.isArray(mainData) || mainData.length === 0) {
-        hideAll();
-        document.getElementById('not-found').style.display = 'block';
-        return;
-      }
-      allData = mainData;
-      filteredData = mainData;
-    }
-
-    // 比較相手を取得
     const cdata = await fetchData(cid);
 
     hideAll();
@@ -505,9 +472,11 @@ async function doCompare() {
     compareAllData = cdata;
     compareFilteredData = cdata;
 
-    // メインの画面はそのまま表示しつつ、グラフだけ2本に更新
-    initSlider(filteredData.length);
-    renderChart(filteredData, compareFilteredData);
+    // 統合
+    mergeDates(filteredData, compareFilteredData);
+
+    initSlider(mergedLabels.length);
+    renderChart();
 
     document.getElementById('result').style.display = 'block';
 
@@ -545,8 +514,8 @@ function renderResult(id, data) {
     `<button class="filter-btn ${t === 'all' ? 'active' : ''}" onclick="applyFilter('${t}', this)">${t === 'all' ? 'すべて' : t}</button>`
   ).join('');
 
-  initSlider(data.length);
-  renderChart(data, compareFilteredData);
+  initSlider(mergedLabels.length);
+  renderChart();
   renderTable(data);
 
   document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
@@ -563,13 +532,16 @@ function applyFilter(type, btn) {
 
   filteredData = type === 'all' ? allData : allData.filter(d => d['種別'] === type);
 
-  // 比較側も同じ種別で絞る
   if (compareAllData.length) {
     compareFilteredData = type === 'all' ? compareAllData : compareAllData.filter(d => d['種別'] === type);
+  } else {
+    compareFilteredData = [];
   }
 
-  initSlider(filteredData.length);
-  renderChart(filteredData, compareFilteredData);
+  mergeDates(filteredData, compareFilteredData);
+
+  initSlider(mergedLabels.length);
+  renderChart();
   renderTable(filteredData);
 
   document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
@@ -610,13 +582,12 @@ function onSliderChange() {
 }
 
 function updateSliderUI() {
-  const data = filteredData;
-  if (!data.length) return;
+  if (!mergedLabels.length) return;
 
-  const total = data.length;
+  const total = mergedLabels.length;
 
-  document.getElementById('label-start').textContent = data[sliderStart]?.['日付'] || '—';
-  document.getElementById('label-end').textContent = data[sliderEnd]?.['日付'] || '—';
+  document.getElementById('label-start').textContent = mergedLabels[sliderStart] || '—';
+  document.getElementById('label-end').textContent = mergedLabels[sliderEnd] || '—';
 
   const pct = v => (v / Math.max(total - 1, 1)) * 100;
   const fill = document.getElementById('slider-fill');
@@ -628,16 +599,17 @@ function updateSliderUI() {
 }
 
 function updateChart() {
-  if (!chartInstance || !filteredData.length) return;
+  if (!chartInstance) return;
 
-  const visibleMain = filteredData.slice(sliderStart, sliderEnd + 1);
-  chartInstance.data.labels = visibleMain.map(d => d['日付']);
-  chartInstance.data.datasets[0].data = visibleMain.map(d => d['レイティング']);
+  const labels = mergedLabels.slice(sliderStart, sliderEnd + 1);
+  const mainPts = mergedMainPoints.slice(sliderStart, sliderEnd + 1);
+  const compPts = mergedComparePoints.slice(sliderStart, sliderEnd + 1);
 
-  // 比較データもあれば更新
-  if (compareFilteredData.length && chartInstance.data.datasets[1]) {
-    const visibleCompare = compareFilteredData.slice(sliderStart, sliderEnd + 1);
-    chartInstance.data.datasets[1].data = visibleCompare.map(d => d['レイティング']);
+  chartInstance.data.labels = labels;
+  chartInstance.data.datasets[0].data = mainPts;
+
+  if (chartInstance.data.datasets[1]) {
+    chartInstance.data.datasets[1].data = compPts;
   }
 
   chartInstance.update();
@@ -647,23 +619,23 @@ function setPreset(months, btn) {
   document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
 
-  const data = filteredData;
-  if (!data.length) return;
+  if (!mergedLabels.length) return;
 
   if (months === 0) {
     sliderStart = 0;
-    sliderEnd = data.length - 1;
+    sliderEnd = mergedLabels.length - 1;
   } else {
-    const latest = new Date(data[data.length - 1]['日付']);
+    const latest = new Date(mergedLabels[mergedLabels.length - 1]);
     const limit = new Date(latest);
     limit.setMonth(limit.getMonth() - months);
 
     const limitStr = limit.toISOString().split('T')[0];
-    let idx = data.findIndex(d => d['日付'] >= limitStr);
+
+    let idx = mergedLabels.findIndex(d => d >= limitStr);
     if (idx === -1) idx = 0;
 
     sliderStart = idx;
-    sliderEnd = data.length - 1;
+    sliderEnd = mergedLabels.length - 1;
   }
 
   document.getElementById('slider-start').value = sliderStart;
@@ -674,8 +646,7 @@ function setPreset(months, btn) {
 }
 
 function shiftRange(dir) {
-  const data = filteredData;
-  if (!data.length) return;
+  if (!mergedLabels.length) return;
 
   const span = sliderEnd - sliderStart;
   const step = Math.max(1, Math.floor(span * 0.5));
@@ -684,7 +655,7 @@ function shiftRange(dir) {
   let ne = sliderEnd + dir * step;
 
   if (ns < 0) { ne -= ns; ns = 0; }
-  if (ne > data.length - 1) { ns -= (ne - (data.length - 1)); ne = data.length - 1; }
+  if (ne > mergedLabels.length - 1) { ns -= (ne - (mergedLabels.length - 1)); ne = mergedLabels.length - 1; }
   ns = Math.max(0, ns);
 
   sliderStart = ns;
@@ -699,46 +670,47 @@ function shiftRange(dir) {
   document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
 }
 
-function renderChart(mainData, compareData) {
+function renderChart() {
   if (chartInstance) chartInstance.destroy();
 
-  const visibleMain = mainData.slice(sliderStart, sliderEnd + 1);
+  const labels = mergedLabels.slice(sliderStart, sliderEnd + 1);
+  const mainPts = mergedMainPoints.slice(sliderStart, sliderEnd + 1);
+  const compPts = mergedComparePoints.slice(sliderStart, sliderEnd + 1);
 
   const datasets = [
     {
-      label: "メイン",
-      data: visibleMain.map(d => d['レイティング']),
+      label: "メイン (" + mainId + ")",
+      data: mainPts,
       borderColor: '#1a56db',
       backgroundColor: 'rgba(26,86,219,0.07)',
       pointBackgroundColor: '#1a56db',
       pointRadius: 4,
       pointHoverRadius: 7,
       fill: true,
-      tension: 0.3
+      tension: 0.3,
+      spanGaps: false
     }
   ];
 
-  // 比較相手がいる場合は追加
-  if (compareData && compareData.length) {
-    const visibleCompare = compareData.slice(sliderStart, sliderEnd + 1);
-
+  if (compareId) {
     datasets.push({
-      label: "比較相手 (" + compareId + ")",
-      data: visibleCompare.map(d => d['レイティング']),
+      label: "比較 (" + compareId + ")",
+      data: compPts,
       borderColor: '#e02424',
       backgroundColor: 'rgba(224,36,36,0.05)',
       pointBackgroundColor: '#e02424',
       pointRadius: 4,
       pointHoverRadius: 7,
       fill: false,
-      tension: 0.3
+      tension: 0.3,
+      spanGaps: false
     });
   }
 
   chartInstance = new Chart(document.getElementById('chart'), {
     type: 'line',
     data: {
-      labels: visibleMain.map(d => d['日付']),
+      labels: labels,
       datasets: datasets
     },
     options: {
@@ -749,7 +721,7 @@ function renderChart(mainData, compareData) {
         tooltip: {
           callbacks: {
             title: ctx => ctx[0].label,
-            label: ctx => ' ' + ctx.dataset.label + " : " + ctx.parsed.y.toLocaleString() + ' pt'
+            label: ctx => ' ' + ctx.dataset.label + " : " + (ctx.parsed.y === null ? "-" : ctx.parsed.y.toLocaleString()) + ' pt'
           }
         }
       },
@@ -775,9 +747,9 @@ function renderTable(data) {
     const dv = prev ? r['レイティング'] - prev['レイティング'] : null;
 
     const dstr = dv === null ? '' :
-      dv > 0 ? `<span class="du">+${dv}</span>` :
-      dv < 0 ? `<span class="dd">${dv}</span>` :
-      `<span class="dz">±0</span>`;
+      dv > 0 ? `<span style="color:#0e9f6e;font-weight:700;">+${dv}</span>` :
+      dv < 0 ? `<span style="color:#e02424;font-weight:700;">${dv}</span>` :
+      `<span style="color:#6b7280;">±0</span>`;
 
     return `<tr>
       <td>${r['日付']}</td>
