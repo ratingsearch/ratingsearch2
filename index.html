@@ -522,7 +522,7 @@ function setSearchEnabled(enabled) {
 }
 
 async function fetchData(id) {
-  const res = await fetch(`${API_URL}?id=${encodeURIComponent(id)}&type=${currentType}&v=1`);
+  const res = await fetch(`${API_URL}?id=${encodeURIComponent(id)}&type=${currentType}`);
   return await res.json();
 }
 
